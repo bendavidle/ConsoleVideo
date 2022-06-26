@@ -25,13 +25,13 @@ namespace ConsoleVideo
 
                 string ext = Path.GetExtension(urlPath);
 
-                while (!File.Exists(@"C:\Users\Ben David\Documents\consolevideo\" + "temp" + ext)) { } //Wait for Video to download.
+                while (!File.Exists(AsciiApp.Directory + "temp" + ext)) { } //Wait for Video to download.
 
-                if (File.Exists(@"C:\Users\Ben David\Documents\consolevideo\" + "temp" + ext))
+                if (File.Exists(AsciiApp.Directory + "temp" + ext))
                 {
-                    GenerateAsciiVideo(@"C:\Users\Ben David\Documents\consolevideo\" + "temp" + ext);
+                    GenerateAsciiVideo(AsciiApp.Directory + "temp" + ext);
                 }
-                File.Delete(@"C:\Users\Ben David\Documents\consolevideo\" + "temp" + ext);
+                File.Delete(AsciiApp.Directory + "temp" + ext);
             }
         }
 

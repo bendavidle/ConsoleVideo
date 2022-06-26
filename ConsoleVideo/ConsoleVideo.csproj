@@ -10,7 +10,9 @@
   <ItemGroup>
     <PackageReference Include="Emgu.CV.Bitmap" Version="4.5.5.4823" />
     <PackageReference Include="Emgu.CV.runtime.windows" Version="4.5.5.4823" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.1" />
     <PackageReference Include="ShellProgressBar" Version="5.2.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.0" />
     <PackageReference Include="System.Drawing.Common" Version="6.0.0" />
     <PackageReference Include="System.Windows.Extensions" Version="6.0.0" />
   </ItemGroup>

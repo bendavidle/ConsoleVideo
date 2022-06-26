@@ -29,7 +29,6 @@ namespace ConsoleVideo
 
             }
 
-
         }
 
         public static bool Send(string commandString)
