@@ -1,27 +1,31 @@
 ﻿using Emgu.CV;
 using Emgu.CV.CvEnum;
+using ShellProgressBar;
 using System.Net;
 using System.Text.Json.Serialization;
 
 namespace ConsoleVideo
 {
     [Serializable]
-    internal class AsciiVideo
+    public class AsciiVideo
     {
         public List<AsciiArt> Frames;
         public double Fps;
         public int Duration;
 
+        //Generate Video from URL.
         public AsciiVideo(string urlPath, bool url)
         {
             Frames = new List<AsciiArt>();
             if (url)
             {
-                DownloadVideo(urlPath);
+                Ascii.DownloadVideo(urlPath);
+
+
 
                 string ext = Path.GetExtension(urlPath);
 
-                while (!File.Exists(@"C:\Users\Ben David\Documents\consolevideo\" + "temp" + ext)) { }
+                while (!File.Exists(@"C:\Users\Ben David\Documents\consolevideo\" + "temp" + ext)) { } //Wait for Video to download.
 
                 if (File.Exists(@"C:\Users\Ben David\Documents\consolevideo\" + "temp" + ext))
                 {
@@ -31,6 +35,7 @@ namespace ConsoleVideo
             }
         }
 
+        //Generate Video from Filepath.
         public AsciiVideo(string filename)
         {
             Frames = new List<AsciiArt>();
@@ -39,33 +44,39 @@ namespace ConsoleVideo
 
         private void GenerateAsciiVideo(string filename)
         {
-            string path = filename;
-
-            if (!File.Exists(path))
+            if (!File.Exists(filename))
             {
                 throw new FileNotFoundException("This file was not found.");
             }
 
-            using var video = new VideoCapture(path);
+            ProgressBarOptions? options = new ProgressBarOptions
+            {
+                ProgressCharacter = '-',
+                ProgressBarOnBottom = true
+            };
+
+            using VideoCapture? video = new VideoCapture(filename);
+
+            int totalFrames = (int)Math.Floor(video.Get(CapProp.FrameCount));
 
 
             Fps = video.Get(CapProp.Fps);
-            int totalFrames = (int)Math.Floor(video.Get(CapProp.FrameCount));
-            int currentFrames = 0;
-
             Duration = (int)(totalFrames / Fps);
 
-            using var img = new Mat();
+
+            using Mat? img = new Mat();
+
+            using ProgressBar? pbar = new ProgressBar(totalFrames, "Loading Video", options);
             while (video.Grab())
             {
                 Console.SetCursorPosition(0, 0);
                 video.Retrieve(img);
                 Frames.Add(new AsciiArt(img.ToBitmap(), 200));
-                currentFrames++;
-                Console.Write($"Generating Ascii Video: {currentFrames} of {totalFrames} total frames.");
+                pbar.Tick();
             }
         }
 
+        //Play video.
         public void Play()
         {
 
@@ -75,45 +86,17 @@ namespace ConsoleVideo
             TimeSpan dur = TimeSpan.FromSeconds(Duration);
             TimeSpan curDur = TimeSpan.FromSeconds(0);
 
-            foreach (var frame in Frames)
+            foreach (AsciiArt? frame in Frames)
             {
                 Console.SetCursorPosition(0, 0);
                 Console.Write(curDur.ToString(@"hh\:mm\:ss") + " | " + dur.ToString(@"hh\:mm\:ss"));
                 Console.SetCursorPosition(0, 1);
-                Console.WriteLine(frame.Ascii);
+                Console.WriteLine(frame.Art);
                 Thread.Sleep((int)(1000 / Fps));
                 currentFrame++;
                 curDur = TimeSpan.FromSeconds((int)(currentFrame / Fps));
 
             }
-        }
-
-        private void DownloadVideo(string url)
-        {
-            string ext = Path.GetExtension(url);
-
-            if (ext is ".mp4" or ".webm")
-            {
-
-                using (var client = new WebClient())
-                {
-                    var content = client.DownloadData(url);
-                    var stream = new MemoryStream(content);
-
-                    string videoFile = Path.Combine(@"C:\Users\Ben David\Documents\consolevideo", "temp" + ext);
-
-                    if (!File.Exists(videoFile))
-                    {
-                        using (FileStream outputStream = File.Create(videoFile))
-                        {
-                            stream.CopyTo(outputStream);
-                        }
-                    }
-                }
-            }
-
-
-
         }
 
     }
